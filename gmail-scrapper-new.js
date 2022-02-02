@@ -1,3 +1,8 @@
+// New Version changes: 
+// 1) getFrom > getTo method
+// 2) mailContent added for order number
+// 3) created ss includes order number
+
 function GetAddresses() {
     // Get the active spreadsheet
    var ss = SpreadsheetApp.getActiveSpreadsheet();  
@@ -36,9 +41,9 @@ function GetAddresses() {
        // Loop over all messages in this thread
        for (var j = 0; j < messages[i].length; j++)
        {
-         var mailFrom = messages[i][j].getFrom ();
+         var mailFrom = messages[i][j].getTo ();
          var mailDate = messages[i][j].getDate ();
-         
+         var mailContent = messages[i][j].getBody();
          // mailFrom format may be either one of these:
          // name@domain.com
          // any text <name@domain.com>
@@ -46,6 +51,16 @@ function GetAddresses() {
          
          var name = "";
          var email = "";
+         var order = "";
+         var orderNums = mailContent.match (/#\d{4}/);
+         if (orderNums){
+           order = orderNums;
+         }
+         else 
+         {
+           order = 0000;
+         }
+
          var matches = mailFrom.match (/\s*"?([^"]*)"?\s+<(.+)>/);
          if (matches)
          {
@@ -67,13 +82,13 @@ function GetAddresses() {
          
          // Add the data
          addressesOnly.push (mailFrom);
-         messageData.push ([name, email, mailDate]);
+         messageData.push ([name, email, order, mailDate]);
        }
      }
    }
    
    // Add data to corresponding sheet
-   sheet.getRange (1, 1, messageData.length, 3).setValues (messageData);
+   sheet.getRange (1, 1, messageData.length, 4).setValues (messageData);
  }
  
  
